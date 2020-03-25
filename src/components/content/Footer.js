@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Footer = () => {
+const Footer =  React.memo(() =>{
   const classes = useStyles();
   const data = useStaticQuery(
     graphql`
@@ -110,7 +110,6 @@ const Footer = () => {
                 <ListItemText primary="Blog" />
               </ListItem>
             </List>
-
             <Typography variant="h6" align="left" gutterBottom>
               Donate
             </Typography>
@@ -130,7 +129,6 @@ const Footer = () => {
             </List>
           </Grid>
           <Grid xs={12} className={classes.licenses}>
-            
         <Typography variant="h6" align="center" gutterBottom>
           License
         </Typography>
@@ -144,6 +142,6 @@ const Footer = () => {
       </Container>
     </footer>
   );
-};
+});
 
 export default Footer;

@@ -34,7 +34,7 @@ const PatreonButton = withStyles(theme => ({
   }
 }))(Button);
 
-const Contribute = () => {
+const Contribute = React.memo(() => {
   return (
     <div>
       <Typography variant="h3" component="h2" align="center" gutterBottom>
@@ -78,5 +78,5 @@ const Contribute = () => {
       </Typography>
     </div>
   );
-};
+});
 export default Contribute;

@@ -3,7 +3,8 @@ import Helmet from "react-helmet";
 import PropTypes from "prop-types";
 import { StaticQuery, graphql } from "gatsby";
 
-function SEO({ description, lang, meta, keywords, title }) {
+const SEO = React.memo(({ description, lang, meta, keywords, title }) => {
+  console.log("render SEO")
   return (
     <StaticQuery
       query={detailsQuery}
@@ -83,12 +84,20 @@ function SEO({ description, lang, meta, keywords, title }) {
       }}
     />
   );
-}
+});
 
 SEO.defaultProps = {
   lang: `en`,
   meta: [],
-  keywords: []
+  keywords: [
+    `Cohen's d`,
+    `Effect size`,
+    `Interactive`,
+    `Visualization`,
+    `Teaching`,
+    `Science`,
+    `Psychology`
+  ]
 };
 
 SEO.propTypes = {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "@material-ui/core";
 
-const Intro = () => {
+const Intro = React.memo(() => {
   return (
     <div>
       <Typography variant="body1">
@@ -23,6 +23,6 @@ const Intro = () => {
       </Typography>
     </div>
   );
-};
+});
 
 export default Intro;

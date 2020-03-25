@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import SaveButton from "./SaveButton";
 import { Typography } from "@material-ui/core";
-import { VizDispatch } from "../../App";
+import { SettingsContext } from "../../App";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
@@ -17,10 +17,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const VizSettings = props => {
-  const { vizState } = props;
+const VizSettings = () => {
   const classes = useStyles();
-  const dispatch = useContext(VizDispatch);
+  const {state, dispatch} = useContext(SettingsContext);
   const {
     cohend,
     M0,
@@ -32,7 +31,7 @@ const VizSettings = props => {
     muOneLabel,
     sliderMax,
     sliderStep
-  } = vizState;
+  } = state;
   const handleSubmit = e => {
     e.preventDefault();
   };
@@ -137,7 +136,7 @@ const VizSettings = props => {
           handleSubmit={handleSubmit}
         />
           <Divider />
-          <SaveButton data={vizState} />
+          <SaveButton data={state} />
       </Container>
     </div>
   );

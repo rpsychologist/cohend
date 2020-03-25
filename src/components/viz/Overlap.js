@@ -95,29 +95,30 @@ const OverlapChart = props => {
   }
 
   // Resize
-  useEffect(() => {
+  /*   useEffect(() => {
     const t = zoomTransform(vizRef.current);
     const newXScale = t.rescaleX(xScale.range([0, w]));
     setXAxis(() => axisBottom(newXScale));
-  }, [w]);
+  }, [w]); */
 
   // Update
-  useEffect(() => {
+  /*   useEffect(() => {
     createOverlapChart(durationTime);
-  }, [para]);
+  }, [para]); */
+
+  const yScale = scaleLinear()
+    .domain([0, y_max])
+    .range([0, h]);
+
+  // Line function
+  const linex = line()
+    .x(d => xScale(d[0]))
+    .y(d => h - yScale(d[1]));
 
   const createOverlapChart = durationTime => {
     const node = vizRef.current;
 
     // Create scales
-    const yScale = scaleLinear()
-      .domain([0, y_max])
-      .range([0, h]);
-
-    // Line function
-    const linex = line()
-      .x(d => xScale(d[0]))
-      .y(d => h - yScale(d[1]));
 
     select(node)
       .selectAll("g.viz")
@@ -149,7 +150,7 @@ const OverlapChart = props => {
       .append("g")
       .attr("class", "viz")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-  
+
     select(node)
       .call(zoomFn)
       .on("wheel.zoom", null)
@@ -398,7 +399,22 @@ const OverlapChart = props => {
     });
   };
 
-  return <svg ref={vizRef} width={props.width} height={props.width * 0.4} />;
+  return (
+    <svg width={props.width} height={props.width * 0.4}>
+ 
+      <g transform="translate(50,0)">
+      <path d={linex(data2.data)} id="dist2" transform="translate(50,0)" />
+      <path id="dist1" d={linex(data1.data)}/>
+      <clipPath id="distClip">
+        <use href="#dist2"/>
+      </clipPath>
+      <path d={linex(data1.data)} clipPath="url(#distClip)" id="distOverlap"/>
+      
+      </g>
+
+
+    </svg>
+  );
 };
 
 export default OverlapChart;

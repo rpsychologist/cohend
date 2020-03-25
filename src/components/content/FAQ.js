@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const FaqPage = () => {
+const FaqPage = React.memo(() => {
   const classes = useStyles();
   const data = useStaticQuery(
     graphql`
@@ -67,6 +67,6 @@ const FaqPage = () => {
       ))}
     </div>
   );
-};
+});
 
 export default FaqPage;

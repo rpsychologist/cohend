@@ -20,8 +20,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const HeaderAppBar = () => {
+const HeaderAppBar = React.memo(() => {
   const classes = useStyles();
+  console.log("render appbar")
   return (
     <AppBar position="static" color={"inherit"} className={classes.appBar}>
       <Toolbar>
@@ -33,5 +34,5 @@ const HeaderAppBar = () => {
       </Toolbar>
     </AppBar>
   );
-};
+});
 export default HeaderAppBar;

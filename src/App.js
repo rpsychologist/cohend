@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect, createContext } from "react";
+import React, { useReducer, useState, useEffect, createContext, useMemo } from "react";
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles, useTheme, ThemeProvider } from "@material-ui/core/styles";
@@ -134,13 +134,17 @@ const vizReducer = (state, action) => {
       };
   }
 };
-export const VizDispatch = createContext(null);
+
+export const SettingsContext = createContext(null);
 const round = val => Math.round(Number(val) * 1000) / 1000;
 
 const App = () => {
   const classes = useStyles();
   const [openSettings, setOpenSettings] = useState(false);
   const [state, dispatch] = useReducer(vizReducer, initialState);
+  const contextValue = useMemo(() => {
+    return { state, dispatch };
+  }, [state, dispatch]);
 
   useEffect(() => dispatch({ name: "cohend", value: initialState.cohend }), []);
 
@@ -158,19 +162,10 @@ const App = () => {
   return (
     <div className={classes.root}>
       <SEO
-        keywords={[
-          `Cohen's d`,
-          `Effect size`,
-          `Interactive`,
-          `Visualization`,
-          `Teaching`,
-          `Science`,
-          `Psychology`
-        ]}
       />
       <CssBaseline />
       <ThemeProvider theme={theme}>
-        <VizDispatch.Provider value={dispatch}>
+        <SettingsContext.Provider value={contextValue}>
           <HeaderAppBar />
           <SettingsDrawer
             handleDrawer={toggleDrawer}
@@ -244,7 +239,7 @@ const App = () => {
               <MoreViz />
             </Container>
           </SettingsDrawer>
-        </VizDispatch.Provider>
+        </SettingsContext.Provider>
         <Footer/>
       </ThemeProvider>
     </div>

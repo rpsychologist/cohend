@@ -57,15 +57,15 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function PersistentDrawerRight({
+const PersistentDrawerRight = React.memo(({
   handleDrawer,
   open,
   vizState,
   children
-}) {
+}) => {
   const classes = useStyles();
   const theme = useTheme();
-
+  console.log("render drawer")
   return (
     <div>
       <CssBaseline />
@@ -100,4 +100,5 @@ export default function PersistentDrawerRight({
       </Drawer>
     </div>
   );
-}
+})
+export default PersistentDrawerRight;

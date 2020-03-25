@@ -19,22 +19,15 @@ const SettingsInput = ({
   max,
   step
 }) => {
+  console.log("render input");
   const classes = useStyles();
   const inputProps = { min: min, max: max, step: step };
-  const [input, setInput] = useState(Number(value));
-
-  useEffect(() => {
-    setInput(value);
-  }, [value]);
 
   const onChange = e => {
     const value = e.target.value;
     const name = e.target.name;
-
-    setInput(value);
-    const checkInput = (name === "M0" | name === "M1");
-    if ((value > max & checkInput) | (value < min & checkInput)) {
-    } else {
+    const checkInput = (name === "M0") | (name === "M1");
+    if (!((value > max) & checkInput) & !((value < min) & checkInput)) {
       handleChange({
         name: e.target.name,
         value: value
@@ -62,7 +55,7 @@ const SettingsInput = ({
           margin="dense"
           variant="filled"
           onChange={onChange}
-          value={input}
+          value={value}
         />
       </div>
     </form>

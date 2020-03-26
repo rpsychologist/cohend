@@ -34,9 +34,15 @@ const genData = (mu, sigma, x) => {
   return data;
 };
 
+const VerticalLine = ({ x, y1, y2, id }) => {
+  return <line x1={x} x2={x} y1={y1} y2={y2} id={id} />;
+};
+
 const OverlapChart = props => {
   const vizRef = useRef(null);
   const [zoomTrans, setZoomTrans] = useState(0);
+
+  const { M0, M1, xLabel } = props;
 
   // Stuff
   const margin = { top: 60, right: 20, bottom: 30, left: 20 };
@@ -70,7 +76,7 @@ const OverlapChart = props => {
   // Axes min and max
   const x_max = para.mu1 + para.sigma * 3;
   const x_min = para.mu0 - para.sigma * 3;
-  const y_max = max([max(data1.y), max(data2.y)]);
+  const yMax = max([max(data1.y), max(data2.y)]);
 
   // Scales and Axis
   const [xScale, setXScale] = useState(() =>
@@ -107,7 +113,7 @@ const OverlapChart = props => {
   }, [para]); */
 
   const yScale = scaleLinear()
-    .domain([0, y_max])
+    .domain([0, yMax])
     .range([0, h]);
 
   // Line function
@@ -115,18 +121,10 @@ const OverlapChart = props => {
     .x(d => xScale(d[0]))
     .y(d => h - yScale(d[1]));
 
+  const PathDist1 = linex(data1.data);
+  const PathDist2 = linex(data2.data);
+
   const createOverlapChart = durationTime => {
-    const node = vizRef.current;
-
-    // Create scales
-
-    select(node)
-      .selectAll("g.viz")
-      .attr(
-        "transform",
-        "translate(" + (margin.left + zoomTrans) + "," + margin.top + ")"
-      );
-
     // Axis
     select(node)
       .selectAll("g.xAxis")
@@ -143,14 +141,6 @@ const OverlapChart = props => {
       )
       .call(xAxis);
 
-    const gViz = select(node)
-      .selectAll("g.viz")
-      .data([0])
-      .enter()
-      .append("g")
-      .attr("class", "viz")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
     select(node)
       .call(zoomFn)
       .on("wheel.zoom", null)
@@ -163,115 +153,6 @@ const OverlapChart = props => {
           .duration(200)
           .call(zoomFn.transform, zoomIdentity);
       });
-
-    // x label
-    gViz
-      .selectAll("#x-label")
-      .data([0])
-      .enter()
-      .append("text")
-      .style("text-anchor", "middle")
-      .attr("id", "x-label");
-
-    select(node)
-      .selectAll("#x-label")
-      .attr(
-        "transform",
-        "translate(" + w / 2 + " ," + (h + margin.bottom) + ")"
-      )
-      .text(props.xLabel);
-
-    // Append dists
-
-    // DIST1
-    gViz
-      .selectAll("#dist1")
-      .data([data1.data])
-      .enter()
-      .append("svg:path")
-      .attr("d", linex)
-      .attr("id", "dist1");
-
-    select(node)
-      .selectAll("#dist1")
-      .data([data1.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // CLIP 1
-    gViz
-      .selectAll("#dist1-clip")
-      .data([data2.data])
-      .enter()
-      .append("clipPath")
-      .attr("id", "dist1-clip")
-      .append("path")
-      .attr("d", linex) // define a clip path
-      .attr("id", "clip-path");
-
-    select(node)
-      .selectAll("#clip-path")
-      .data([data1.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // DIST 2
-    gViz
-      .selectAll("#dist2")
-      .data([data2.data])
-      .enter()
-      .append("svg:path")
-      .attr("d", linex)
-      .attr("id", "dist2");
-
-    select(node)
-      .selectAll("#dist2")
-      .data([data2.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // DIST overlap
-    gViz
-      .selectAll("#distOverlap")
-      .data([data2.data])
-      .enter()
-      .append("svg:path")
-      .attr("clip-path", "url(#dist1-clip)")
-      .attr("d", linex)
-      .attr("id", "distOverlap");
-
-    select(node)
-      .selectAll("#distOverlap")
-      .data([data2.data])
-      .transition()
-      .duration(durationTime)
-      .attr("d", linex);
-
-    // mu vertical lines
-    const muLines = (mu, id) => {
-      gViz
-        .selectAll("#" + id)
-        .data([0])
-        .enter()
-        .append("line")
-        .attr("id", id);
-
-      select(node)
-        .selectAll("#" + id)
-        .data([0])
-        .transition()
-        .duration(durationTime)
-        .attr("x1", xScale(mu))
-        .attr("x2", xScale(mu))
-        .attr("y1", yScale(0))
-        .attr("y2", yScale(y_max));
-    };
-
-    muLines(para.mu0, "mu0");
-    muLines(para.mu1, "mu1");
 
     // marker
     gViz
@@ -401,18 +282,33 @@ const OverlapChart = props => {
 
   return (
     <svg width={props.width} height={props.width * 0.4}>
- 
-      <g transform="translate(50,0)">
-      <path d={linex(data2.data)} id="dist2" transform="translate(50,0)" />
-      <path id="dist1" d={linex(data1.data)}/>
-      <clipPath id="distClip">
-        <use href="#dist2"/>
-      </clipPath>
-      <path d={linex(data1.data)} clipPath="url(#distClip)" id="distOverlap"/>
-      
+      <g transform={`translate(${margin.left + zoomTrans}, ${margin.top})`}>
+        <path d={PathDist2} id="dist2" transform="translate(0,0)" />
+        <path id="dist1" d={PathDist1} />
+        <clipPath id="distClip">
+          <use href="#dist2" />
+        </clipPath>
+        <path d={PathDist1} clipPath="url(#distClip)" id="distOverlap" />
+        <VerticalLine
+          x={xScale(M0)}
+          y1={yScale(0)}
+          y2={yScale(yMax)}
+          id="mu0"
+        />
+        <VerticalLine
+          x={xScale(M1)}
+          y1={yScale(0)}
+          y2={yScale(yMax)}
+          id="mu1"
+        />
+        <text
+          textAnchor="middle"
+          id="x-label"
+          transform={`translate(${w / 2}, ${h + margin.bottom})`}
+        >
+          {xLabel}
+        </text>
       </g>
-
-
     </svg>
   );
 };

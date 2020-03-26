@@ -19,7 +19,6 @@ const SettingsInput = ({
   max,
   step
 }) => {
-  console.log("render input");
   const classes = useStyles();
   const inputProps = { min: min, max: max, step: step };
 

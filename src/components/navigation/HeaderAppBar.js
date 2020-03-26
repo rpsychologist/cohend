@@ -4,7 +4,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import logo from "./rpsychologist-logo.svg";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   appBar: {
     boxShadow: "none"
   },
@@ -22,7 +22,6 @@ const useStyles = makeStyles(theme => ({
 
 const HeaderAppBar = React.memo(() => {
   const classes = useStyles();
-  console.log("render appbar")
   return (
     <AppBar position="static" color={"inherit"} className={classes.appBar}>
       <Toolbar>

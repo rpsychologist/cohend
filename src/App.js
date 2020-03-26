@@ -1,4 +1,10 @@
-import React, { useReducer, useState, useEffect, createContext, useMemo } from "react";
+import React, {
+  useReducer,
+  useState,
+  useEffect,
+  createContext,
+  useMemo
+} from "react";
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles, useTheme, ThemeProvider } from "@material-ui/core/styles";
@@ -16,7 +22,7 @@ import Contribute from "./components/content/Contribute";
 import Button from "@material-ui/core/Button";
 import Content from "./Viz";
 import SEO from "./components/SEO";
-import Footer from "./components/content/Footer"
+import Footer from "./components/content/Footer";
 import { normal } from "jstat";
 
 const useStyles = makeStyles(theme => ({
@@ -64,35 +70,35 @@ if (typeof localStorage !== `undefined`) {
   };
 }
 
+const calcGaussOverlap = d => 2 * normal.cdf(-Math.abs(d) / 2, 0, 1);
+const calcCL = d => normal.cdf(d / Math.sqrt(2), 0, 1);
+const calcNNT = (d, CER) =>
+  1 / (normal.cdf(d + normal.inv(CER, 0, 1), 0, 1) - CER);
+
+const calcCohend = (value, name) => {
+  switch (name) {
+    case "M0":
+      return (state.M1 - value) / state.SD;
+    case "M1":
+      return (value - state.M0) / state.SD;
+    case "SD":
+      return (state.M1 - state.M0) / value;
+  }
+};
+const updateDonutData = (d, CER) => {
+  const dNumber = Number(d);
+  const cerNumber = Number(CER);
+  return {
+    U3: normal.cdf(dNumber, 0, 1),
+    propOverlap: calcGaussOverlap(dNumber),
+    CL: calcCL(dNumber),
+    NNT: calcNNT(dNumber, cerNumber)
+  };
+};
 const vizReducer = (state, action) => {
   let { name, value } = action;
   value = value === "" ? "" : action.value;
-  const calcGaussOverlap = d => 2 * normal.cdf(-Math.abs(d) / 2, 0, 1);
-  const calcCL = d => normal.cdf(d / Math.sqrt(2), 0, 1);
-  const calcNNT = (d, CER) =>
-    1 / (normal.cdf(d + normal.inv(CER, 0, 1), 0, 1) - CER);
 
-  const calcCohend = (value, name) => {
-    switch (name) {
-      case "M0":
-        return (state.M1 - value) / state.SD;
-      case "M1":
-        return (value - state.M0) / state.SD;
-      case "SD":
-        return (state.M1 - state.M0) / value;
-    }
-  };
-
-  const updateDonutData = (d, CER) => {
-    const dNumber = Number(d);
-    const cerNumber = Number(CER);
-    return {
-      U3: normal.cdf(dNumber, 0, 1),
-      propOverlap: calcGaussOverlap(dNumber),
-      CL: calcCL(dNumber),
-      NNT: calcNNT(dNumber, cerNumber)
-    };
-  };
   switch (name) {
     case "cohend":
       return {
@@ -161,8 +167,7 @@ const App = () => {
 
   return (
     <div className={classes.root}>
-      <SEO
-      />
+      <SEO />
       <CssBaseline />
       <ThemeProvider theme={theme}>
         <SettingsContext.Provider value={contextValue}>
@@ -240,7 +245,7 @@ const App = () => {
             </Container>
           </SettingsDrawer>
         </SettingsContext.Provider>
-        <Footer/>
+        <Footer />
       </ThemeProvider>
     </div>
   );

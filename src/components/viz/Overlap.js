@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { scaleLinear } from "d3-scale";
 import { max } from "d3-array";
 import { axisBottom } from "d3-axis";
@@ -12,10 +12,10 @@ import { interpolate } from "d3-interpolate";
 import { zoom, zoomIdentity, zoomTransform } from "d3-zoom";
 
 // Generates data
-const genData = (mu, sigma, x) => {
+const genData = (mu, SD, x) => {
   var y = [];
   for (var i = 0; i < x.length; i++) {
-    y.push(normal.pdf(x[i], mu, sigma));
+    y.push(normal.pdf(x[i], mu, SD));
   }
   var tmp = [];
   x.unshift(x[0]);
@@ -38,44 +38,29 @@ const VerticalLine = ({ x, y1, y2, id }) => {
   return <line x1={x} x2={x} y1={y1} y2={y2} id={id} />;
 };
 
+const margin = { top: 60, right: 20, bottom: 30, left: 20 };
+
 const OverlapChart = props => {
   const vizRef = useRef(null);
   const [zoomTrans, setZoomTrans] = useState(0);
 
-  const { cohend, M0, M1, xLabel, muZeroLabel, muOneLabel } = props;
-
-  // Stuff
-  const margin = { top: 60, right: 20, bottom: 30, left: 20 };
+  const { cohend, M0, M1, xLabel, muZeroLabel, muOneLabel, width, height, SD } = props;
   const aspect = 0.4;
-  const durationTime = 200;
-  const w = props.width - margin.left - margin.right;
-  const h = props.width * 0.4 - margin.top - margin.bottom;
-  const mu0Label = props.muZeroLabel,
-    mu1Label = props.muOneLabel;
-  const _previous = local();
-  const para = {
-    cohend: props.cohend,
-    var_ratio: 1,
-    mu0: props.M0,
-    mu1: props.M1,
-    sigma: props.SD,
-    n1: 10,
-    n2: 10,
-    step: 0.1
-  };
+  const w = width - margin.left - margin.right;
+  const h = width * 0.4 - margin.top - margin.bottom;
 
   // x.values
-  const x_start = para.mu0 - 3 * para.sigma;
-  const x_end = para.mu1 + 3 * para.sigma;
+  const x_start = M0 - 3 * SD;
+  const x_end = M1 + 3 * SD;
   const x = range(x_start, x_end, Math.abs(x_start - x_end) / 100);
 
   // Data sets
-  const data1 = genData(para.mu0, para.sigma, x),
-    data2 = genData(para.mu1, para.sigma, x);
+  const data1 = useMemo(() => genData(M0, SD, x), [SD]);
+  const data2 = useMemo(() => genData(M1, SD, x), [SD]);
 
   // Axes min and max
-  const x_max = para.mu1 + para.sigma * 3;
-  const x_min = para.mu0 - para.sigma * 3;
+  const x_max = M1 + SD * 3;
+  const x_min = M0 - SD * 3;
   const yMax = max([max(data1.y), max(data2.y)]);
 
   // Scales and Axis
@@ -88,7 +73,7 @@ const OverlapChart = props => {
     return axisBottom(xScale);
   });
 
-  // Zoom
+/*   // Zoom
   var zoomFn = zoom().on("zoom", zoomed);
 
   function zoomed() {
@@ -99,7 +84,7 @@ const OverlapChart = props => {
       setXAxis(() => newX);
     }
   }
-
+ */
   // Resize
   /*   useEffect(() => {
     const t = zoomTransform(vizRef.current);
@@ -124,7 +109,7 @@ const OverlapChart = props => {
   const PathDist1 = linex(data1.data);
   const PathDist2 = linex(data2.data);
   const labMargin = cohend > 0.1 ? 5 : 15;
-  const createOverlapChart = durationTime => {
+/*   const createOverlapChart = durationTime => {
     // Axis
     select(node)
       .selectAll("g.xAxis")
@@ -153,7 +138,7 @@ const OverlapChart = props => {
           .duration(200)
           .call(zoomFn.transform, zoomIdentity);
       });
-    }
+    } */
 
   return (
     <svg width={props.width} height={props.width * 0.4}>
@@ -210,7 +195,7 @@ const OverlapChart = props => {
           textAnchor="middle"
           id="diff_float"
         >
-          {`(Diff: ${format(".3n")(para.mu1 - para.mu0)})`}
+          {`(Diff: ${format(".3n")(M1 - M0)})`}
         </text>
         <text
           x={xScale(M0) - labMargin}

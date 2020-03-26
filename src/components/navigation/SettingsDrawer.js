@@ -65,7 +65,6 @@ const PersistentDrawerRight = React.memo(({
 }) => {
   const classes = useStyles();
   const theme = useTheme();
-  console.log("render drawer")
   return (
     <div>
       <CssBaseline />

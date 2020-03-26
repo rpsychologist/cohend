@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { StaticQuery, graphql } from "gatsby";
 
 const SEO = React.memo(({ description, lang, meta, keywords, title }) => {
-  console.log("render SEO")
   return (
     <StaticQuery
       query={detailsQuery}

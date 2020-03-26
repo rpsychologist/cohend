@@ -106,11 +106,16 @@ const margin = { top: 60, right: 20, bottom: 30, left: 20 };
 const OverlapChart = props => {
 
   const [{xOffset}, set] = useSpring(() => ({xOffset: 0}))
+  const [xDiff, setDiff] = useState(0);
   const bind = useGesture({
     onDrag: ({delta: [dx,]}) => {
       set({xOffset: xOffset.value + dx, immediate: true})
+      setDiff(xScale.invert(xOffset.value) - xScale.invert(0))
     },
-    onDoubleClick: () => set({xOffset: 0})
+    onDoubleClick: () => {
+      set({xOffset: 0})
+      setDiff(0)
+    }
   })
 
   const {
@@ -138,8 +143,8 @@ const OverlapChart = props => {
   //const data2 = useMemo(() => genData(M1, SD, x), [SD, w]);
 
   // Axes min and max
-  const x_max = M1 + SD * 3;
-  const x_min = M0 - SD * 3;
+  const x_max = useMemo(() => M1 + SD * 3, []);
+  const x_min = useMemo(() => M0 - SD * 3, []);
   const yMax = max(data1.y);
 
   // Scales and Axis
@@ -231,7 +236,7 @@ const OverlapChart = props => {
       });
     } */
 
-  const xDiff = xScale.invert(xOffset.value) - xScale.invert(0);
+  
   console.log("diff " + xDiff)
   return (
     <svg width={props.width} height={props.width * 0.4}>

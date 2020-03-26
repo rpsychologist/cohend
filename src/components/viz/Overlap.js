@@ -44,7 +44,17 @@ const OverlapChart = props => {
   const vizRef = useRef(null);
   const [zoomTrans, setZoomTrans] = useState(0);
 
-  const { cohend, M0, M1, xLabel, muZeroLabel, muOneLabel, width, height, SD } = props;
+  const {
+    cohend,
+    M0,
+    M1,
+    xLabel,
+    muZeroLabel,
+    muOneLabel,
+    width,
+    height,
+    SD
+  } = props;
   const aspect = 0.4;
   const w = width - margin.left - margin.right;
   const h = width * 0.4 - margin.top - margin.bottom;
@@ -55,25 +65,33 @@ const OverlapChart = props => {
   const x = range(x_start, x_end, Math.abs(x_start - x_end) / 100);
 
   // Data sets
-  const data1 = useMemo(() => genData(M0, SD, x), [SD]);
-  const data2 = useMemo(() => genData(M1, SD, x), [SD]);
+  const data1 = useMemo(() => genData(M0, SD, x), [SD, w]);
+  //const data2 = useMemo(() => genData(M1, SD, x), [SD, w]);
 
   // Axes min and max
   const x_max = M1 + SD * 3;
   const x_min = M0 - SD * 3;
-  const yMax = max([max(data1.y), max(data2.y)]);
+  const yMax = max(data1.y);
 
   // Scales and Axis
-  const [xScale, setXScale] = useState(() =>
+  /*   const [xScale, setXScale] = useState(() =>
     scaleLinear()
       .domain([x_min, x_max])
       .range([0, w])
-  );
-  const [xAxis, setXAxis] = useState(() => {
-    return axisBottom(xScale);
-  });
+  ); */
 
-/*   // Zoom
+  const xScale = useMemo(
+    () =>
+      scaleLinear()
+        .domain([x_min, x_max])
+        .range([0, w]),
+    [w]
+  );
+  /*  const [xAxis, setXAxis] = useState(() => {
+    return axisBottom(xScale);
+  }); */
+
+  /*   // Zoom
   var zoomFn = zoom().on("zoom", zoomed);
 
   function zoomed() {
@@ -102,14 +120,18 @@ const OverlapChart = props => {
     .range([0, h]);
 
   // Line function
-  const linex = line()
-    .x(d => xScale(d[0]))
-    .y(d => h - yScale(d[1]));
+  const linex = useMemo(
+    () =>
+      line()
+        .x(d => xScale(d[0]))
+        .y(d => h - yScale(d[1])),
+    [w]
+  );
 
-  const PathDist1 = linex(data1.data);
-  const PathDist2 = linex(data2.data);
+  const PathDist1 = useMemo(() => linex(data1.data), [SD, w]);
+  //const PathDist2 = linex(data2.data);
   const labMargin = cohend > 0.1 ? 5 : 15;
-/*   const createOverlapChart = durationTime => {
+  /*   const createOverlapChart = durationTime => {
     // Axis
     select(node)
       .selectAll("g.xAxis")
@@ -143,12 +165,19 @@ const OverlapChart = props => {
   return (
     <svg width={props.width} height={props.width * 0.4}>
       <g transform={`translate(${margin.left + zoomTrans}, ${margin.top})`}>
-        <path d={PathDist2} id="dist2" transform="translate(0,0)" />
         <path id="dist1" d={PathDist1} />
         <clipPath id="distClip">
           <use href="#dist2" />
         </clipPath>
+        <g>
+          <path
+            d={PathDist1}
+            id="dist2"
+            transform={`translate(${xScale(M1) - xScale(M0)},0)`}
+          />
+        </g>
         <path d={PathDist1} clipPath="url(#distClip)" id="distOverlap" />
+
         <VerticalLine
           x={xScale(M0)}
           y1={yScale(0)}

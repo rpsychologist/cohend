@@ -75,7 +75,7 @@ const calcCL = d => normal.cdf(d / Math.sqrt(2), 0, 1);
 const calcNNT = (d, CER) =>
   1 / (normal.cdf(d + normal.inv(CER, 0, 1), 0, 1) - CER);
 
-const calcCohend = (value, name) => {
+const calcCohend = (value, name, state) => {
   switch (name) {
     case "M0":
       return (state.M1 - value) / state.SD;
@@ -115,7 +115,7 @@ const vizReducer = (state, action) => {
       } else if (name === "M0") {
         value = value > state.M1 ? state.M1 : value;
       }
-      const cohend = calcCohend(value, name);
+      const cohend = calcCohend(value, name, state);
       return {
         ...state,
         cohend: cohend,

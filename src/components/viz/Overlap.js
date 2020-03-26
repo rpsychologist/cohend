@@ -1,15 +1,78 @@
 import React, { useMemo, useRef, useState } from "react";
 import { scaleLinear } from "d3-scale";
 import { max } from "d3-array";
-import { axisBottom } from "d3-axis";
-import { select, local, event } from "d3-selection";
-import { transition, textTween } from "d3-transition";
+
 import { format } from "d3-format";
 import { range } from "d3-array";
 import { line } from "d3-shape";
 import { normal } from "jstat";
-import { interpolate } from "d3-interpolate";
-import { zoom, zoomIdentity, zoomTransform } from "d3-zoom";
+
+import { useGesture } from 'react-use-gesture'
+import { useSpring, animated } from 'react-spring'
+
+
+const Axis = ({
+  domain=[0, 100],
+  range=[10, 290]
+}) => {
+  const ticks = useMemo(() => {
+    const xScale = scaleLinear()
+      .domain(domain)
+      .range(range)
+    const width = range[1] - range[0]
+    const pixelsPerTick = 30
+    const numberOfTicksTarget = Math.max(
+      1,
+      Math.floor(
+        width / pixelsPerTick
+      )
+    )
+    return xScale.ticks(numberOfTicksTarget)
+      .map(value => ({
+        value,
+        xOffset: xScale(value)
+      }))
+  }, [
+    domain.join("-"),
+    range.join("-")
+  ])
+  return (
+    <g>
+      <path
+        d={[
+          "M", range[0], 6,
+          "v", -6,
+          "H", range[1],
+          "v", 6,
+        ].join(" ")}
+        fill="none"
+        stroke="currentColor"
+      />
+      {ticks.map(({ value, xOffset }) => (
+        <g
+          key={value}
+          transform={`translate(${xOffset}, 0)`}
+        >
+          <line
+            y2="6"
+            stroke="currentColor"
+          />
+          <text
+            key={value}
+            style={{
+              fontSize: "10px",
+              textAnchor: "middle",
+              transform: "translateY(20px)"
+            }}>
+            { value }
+          </text>
+        </g>
+      ))}
+    </g>
+  )
+}
+
+const AnimatedAxis = animated(Axis);
 
 // Generates data
 const genData = (mu, SD, x) => {
@@ -41,8 +104,14 @@ const VerticalLine = ({ x, y1, y2, id }) => {
 const margin = { top: 60, right: 20, bottom: 30, left: 20 };
 
 const OverlapChart = props => {
-  const vizRef = useRef(null);
-  const [zoomTrans, setZoomTrans] = useState(0);
+
+  const [{xOffset}, set] = useSpring(() => ({xOffset: 0}))
+  const bind = useGesture({
+    onDrag: ({delta: [dx,]}) => {
+      set({xOffset: xOffset.value + dx, immediate: true})
+    },
+    onDoubleClick: () => set({xOffset: 0})
+  })
 
   const {
     cohend,
@@ -162,9 +231,11 @@ const OverlapChart = props => {
       });
     } */
 
+  const xDiff = xScale.invert(xOffset.value) - xScale.invert(0);
+  console.log("diff " + xDiff)
   return (
     <svg width={props.width} height={props.width * 0.4}>
-      <g transform={`translate(${margin.left + zoomTrans}, ${margin.top})`}>
+      <animated.g {...bind()} transform={xOffset.interpolate((x) => `translate(${margin.left + x}, ${margin.top})`)}>
         <path id="dist1" d={PathDist1} />
         <clipPath id="distClip">
           <use href="#dist2" />
@@ -246,7 +317,10 @@ const OverlapChart = props => {
         >
           {muOneLabel}
         </text>
-      </g>
+      </animated.g>
+      <g transform={`translate(${margin.left}, ${h + margin.top})`}>
+        <Axis domain={[x_min - xDiff, x_max - xDiff]} range={[0,w]}/>
+        </g>
       <defs>
         <marker
           id="arrow"

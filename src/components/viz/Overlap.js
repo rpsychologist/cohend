@@ -42,7 +42,7 @@ const OverlapChart = props => {
   const vizRef = useRef(null);
   const [zoomTrans, setZoomTrans] = useState(0);
 
-  const { cohend, M0, M1, xLabel } = props;
+  const { cohend, M0, M1, xLabel, muZeroLabel, muOneLabel } = props;
 
   // Stuff
   const margin = { top: 60, right: 20, bottom: 30, left: 20 };
@@ -123,7 +123,7 @@ const OverlapChart = props => {
 
   const PathDist1 = linex(data1.data);
   const PathDist2 = linex(data2.data);
-
+  const labMargin = cohend > 0.1 ? 5 : 15;
   const createOverlapChart = durationTime => {
     // Axis
     select(node)
@@ -153,53 +153,7 @@ const OverlapChart = props => {
           .duration(200)
           .call(zoomFn.transform, zoomIdentity);
       });
-
-    // ES line label
-    function createLabel({ label, id, x, y, textAnchor }) {
-      gViz
-        .selectAll("#" + id)
-        .data([0])
-        .enter()
-        .append("text")
-        .attr("id", id)
-        .attr("class", "MuiTypography-body1")
-        .attr("dominant-baseline", "central");
-
-      select(node)
-        .selectAll("#" + id)
-        .transition()
-        .duration(durationTime)
-        .attr("x", x)
-        .attr("y", y)
-        .attr("text-anchor", textAnchor)
-        .text(label);
     }
-
-    createLabel({
-      label: `(Diff: ${format(".3n")(para.mu1 - para.mu0)})`,
-      id: "diff_float",
-      x: xScale((para.mu0 + para.mu1) / 2),
-      y: -25,
-      textAnchor: "middle"
-    });
-
-    const labMargin = para.cohend > 0.1 ? 5 : 15;
-
-    createLabel({
-      label: mu0Label,
-      id: "mu0Label",
-      x: xScale(para.mu0) - labMargin,
-      y: -10,
-      textAnchor: para.cohend >= 0 ? "end" : "start"
-    });
-    createLabel({
-      label: mu1Label,
-      id: "mu1Label",
-      x: xScale(para.mu1) + labMargin,
-      y: -10,
-      textAnchor: para.cohend >= 0 ? "start" : "end"
-    });
-  };
 
   return (
     <svg width={props.width} height={props.width * 0.4}>
@@ -247,6 +201,36 @@ const OverlapChart = props => {
           id="cohend_float"
         >
           {`Cohen's d: ${format(".2n")(cohend)}`}
+        </text>
+        <text
+          x={xScale((M0 + M1) / 2)}
+          y={-25}
+          className="MuiTypography-body1"
+          dominantBaseline="central"
+          textAnchor="middle"
+          id="diff_float"
+        >
+          {`(Diff: ${format(".3n")(para.mu1 - para.mu0)})`}
+        </text>
+        <text
+          x={xScale(M0) - labMargin}
+          y={-10}
+          className="MuiTypography-body1"
+          dominantBaseline="central"
+          textAnchor={cohend >= 0 ? "end" : "start"}
+          id="mu0Label"
+        >
+          {muZeroLabel}
+        </text>
+        <text
+          x={xScale(M1) + labMargin}
+          y={-10}
+          className="MuiTypography-body1"
+          dominantBaseline="central"
+          textAnchor={cohend >= 0 ? "start" : "end"}
+          id="mu1Label"
+        >
+          {muOneLabel}
         </text>
       </g>
       <defs>

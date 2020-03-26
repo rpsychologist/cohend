@@ -55,7 +55,7 @@ if (typeof localStorage !== `undefined`) {
     muZeroLabel: "Control",
     muOneLabel: "Treatment",
     sliderMax: 2,
-    sliderStep: 0.1
+    sliderStep: 0.01
   };
 } else {
   initialState = {

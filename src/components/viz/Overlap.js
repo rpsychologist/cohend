@@ -42,7 +42,7 @@ const OverlapChart = props => {
   const vizRef = useRef(null);
   const [zoomTrans, setZoomTrans] = useState(0);
 
-  const { M0, M1, xLabel } = props;
+  const { cohend, M0, M1, xLabel } = props;
 
   // Stuff
   const margin = { top: 60, right: 20, bottom: 30, left: 20 };
@@ -154,58 +154,6 @@ const OverlapChart = props => {
           .call(zoomFn.transform, zoomIdentity);
       });
 
-    // marker
-    gViz
-      .selectAll("#marker-start")
-      .data([0])
-      .enter()
-      .append("svg:defs")
-      .append("marker")
-      .attr("id", "marker-start")
-      .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 1)
-      .attr("refY", 0)
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .attr("orient", "auto")
-      .append("path")
-      .attr("d", "M0,0L10,-5L10,5");
-
-    gViz
-      .selectAll("#marker-end")
-      .data([0])
-      .enter()
-      .append("svg:defs")
-      .append("marker")
-      .attr("id", "marker-end")
-      .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 9)
-      .attr("refY", 0)
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .attr("orient", "auto")
-      .append("path")
-      .attr("d", "M0, -5L10,0L0,5");
-
-    // effect line
-    gViz
-      .selectAll("#mu_connect")
-      .data([0])
-      .enter()
-      .append("line")
-      .attr("id", "mu_connect")
-      .attr("marker-start", "url(#marker-start)")
-      .attr("marker-end", "url(#marker-end)");
-
-    select(node)
-      .selectAll("#mu_connect")
-      .transition()
-      .duration(durationTime)
-      .attr("x1", xScale(para.mu0))
-      .attr("x2", xScale(para.mu1))
-      .attr("y1", -10)
-      .attr("y2", -10);
-
     // ES line label
     function createLabel({ label, id, x, y, textAnchor }) {
       gViz
@@ -226,33 +174,6 @@ const OverlapChart = props => {
         .attr("text-anchor", textAnchor)
         .text(label);
     }
-
-    gViz
-      .selectAll("#cohen_float")
-      .data([para.cohend])
-      .enter()
-      .append("text")
-      .attr("id", "cohen_float")
-      .attr("class", "MuiTypography-h5 fontWeightBold")
-      .attr("dominant-baseline", "central")
-      .attr("x", xScale((para.mu0 + para.mu1) / 2))
-      .attr("y", -50);
-
-    select(node)
-      .selectAll("#cohen_float")
-      .each(function(d) {
-        _previous.set(this, d);
-      })
-      .data([para.cohend])
-      .transition()
-      .duration(durationTime)
-      .textTween(function(d) {
-        let i = interpolate(_previous.get(this, d), d);
-        return t => `Cohen's d: ${format(".2n")(i(t))}`;
-      })
-      .attr("text-anchor", "middle")
-      .attr("x", xScale((para.mu0 + para.mu1) / 2))
-      .attr("y", -50);
 
     createLabel({
       label: `(Diff: ${format(".3n")(para.mu1 - para.mu0)})`,
@@ -308,7 +229,39 @@ const OverlapChart = props => {
         >
           {xLabel}
         </text>
+        <line
+          x1={xScale(M0)}
+          x2={xScale(M1)}
+          y1={-10}
+          y2={-10}
+          id="mu_connect"
+          marker-start="url(#arrow)"
+          marker-end="url(#arrow)"
+        />
+        <text
+          x={xScale((M0 + M1) / 2)}
+          y={-50}
+          className="MuiTypography-h5 fontWeightBold"
+          dominantBaseline="central"
+          textAnchor="middle"
+          id="cohend_float"
+        >
+          {`Cohen's d: ${format(".2n")(cohend)}`}
+        </text>
       </g>
+      <defs>
+        <marker
+          id="arrow"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
+      </defs>
     </svg>
   );
 };

@@ -44,7 +44,7 @@ path#poly {
   stroke: rgb(6, 18, 19) 38, 39);
   fill: rgb(6, 18, 19) 38, 39);
 }
-line#mu_connect {
+#mu_connect {
   fill: none;
   stroke: black;
   stroke-width: 2px;

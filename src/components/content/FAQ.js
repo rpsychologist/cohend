@@ -62,6 +62,7 @@ const FaqPage = React.memo(() => {
           <ExpansionPanelDetails>
             <Typography
               variant="body1"
+              component="div"
               className={classes.content}
             >
             <MDXRenderer>{ node.body}</MDXRenderer>

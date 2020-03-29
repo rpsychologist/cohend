@@ -19,7 +19,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ColorPicker = ({ dist }) => {
-  console.log("colorPicker")
   const { state, dispatch } = useContext(SettingsContext);
   const [color, setColor] = useState(state[`color${dist}`]);
   const [toggle, setToggle] = useState(false);

@@ -21,6 +21,8 @@ const genData = (mu, SD, x) => {
   };
 };
 
+const toColorString = (color) => `rgba(${ color.r }, ${ color.g }, ${ color.b }, ${ color.a })`;
+
 const VerticalLine = ({ x, y1, y2, id }) => {
   return <line x1={x} x2={x} y1={y1} y2={y2} id={id} />;
 };
@@ -53,11 +55,18 @@ const OverlapChart = props => {
     muOneLabel,
     width,
     height,
-    SD
+    SD,
+    colorDist1,
+    colorDistOverlap,
+    colorDist2,
   } = props;
 
   const w = width - margin.left - margin.right;
   const h = width * 0.4 - margin.top - margin.bottom;
+
+ const fillDist1 = useMemo(() => toColorString(colorDist1), [colorDist1]);
+ const fillDistOverlap = useMemo(() => toColorString(colorDistOverlap), [colorDistOverlap]);
+ const fillDist2 = useMemo(() => toColorString(colorDist2), [colorDist2]);
 
   // x.values
   const xStart = M0 - 3 * SD;
@@ -114,7 +123,7 @@ const OverlapChart = props => {
           x => `translate(${margin.left + x}, ${margin.top})`
         )}
       >
-        <path id="dist1" d={PathDist1} />
+        <path id="dist1" d={PathDist1} fill={fillDist1} />
         <clipPath id="distClip">
           <use href="#dist2" />
         </clipPath>
@@ -123,9 +132,10 @@ const OverlapChart = props => {
             d={PathDist1}
             id="dist2"
             transform={`translate(${xScale(M1) - xScale(M0)},0)`}
+            fill={fillDist2}
           />
         </g>
-        <path d={PathDist1} clipPath="url(#distClip)" id="distOverlap" />
+        <path d={PathDist1} clipPath="url(#distClip)" id="distOverlap" fill={fillDistOverlap} stroke={fillDistOverlap} />
         <VerticalLine
           x={xScale(M0)}
           y1={yScale(0)}

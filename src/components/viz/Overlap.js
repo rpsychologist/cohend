@@ -25,7 +25,7 @@ const VerticalLine = ({ x, y1, y2, id }) => {
   return <line x1={x} x2={x} y1={y1} y2={y2} id={id} />;
 };
 
-const margin = { top: 60, right: 20, bottom: 35, left: 20 };
+const margin = { top: 70, right: 20, bottom: 35, left: 20 };
 
 const OverlapChart = props => {
   const [{ xOffset }, set] = useSpring(() => ({ xOffset: 0 }));

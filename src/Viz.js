@@ -9,8 +9,6 @@ import Cohend from "./components/viz/Overlap";
 import DonutChart from "./components/viz/Donuts";
 import ResponsiveChart from "./components/viz/ResponsiveChart";
 import Slider from "./components/navigation/SettingsSlider";
-import Button from '@material-ui/core/Button';
-import svgSaver from "svgsaver";
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -21,17 +19,6 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const saveSvg = () => {
-  var svgsaver = new svgSaver(); 
-  var svg = document.querySelector("#overlapChart");
-  const height = svg.getAttribute("height");
-  const width = svg.getAttribute("width");
-  // Increase top&bottom margins so chart isn't cropped in some viewers
-  const marg = 20;
-  svg.setAttribute("viewBox", `0, -${marg/2}, ${width}, ${Number(height) + marg}`);
-  svgsaver.asSvg(svg, "rpsychologist-cohend.svg");
-  svg.setAttribute("viewBox", `0, 0, ${width}, ${height}`);
-};
 
 const Content = ({ openSettings, vizState, toggleDrawer }) => {
   const classes = useStyles();
@@ -50,7 +37,6 @@ const Content = ({ openSettings, vizState, toggleDrawer }) => {
             handleDrawer={toggleDrawer}
           />
           <ResponsiveChart chart={Cohend} {...vizState} />
-          <Button onClick={() => saveSvg()} >Save SVG</Button>
           <Grid container spacing={3}>
             <Grid item xs={3}>
               <Paper className={classes.paper}>

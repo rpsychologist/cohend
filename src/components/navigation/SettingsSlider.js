@@ -33,7 +33,6 @@ const saveSvg = () => {
   //svg.setAttribute("viewBox", `0, 0, ${width}, ${height}`);
 };
 
-
 const InputSlider = ({ handleDrawer, openSettings }) => {
   const classes = useStyles();
   const { state, dispatch } = useContext(SettingsContext);

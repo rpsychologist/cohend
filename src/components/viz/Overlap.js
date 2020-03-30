@@ -127,6 +127,7 @@ const OverlapChart = props => {
         )}
       >
         <path id="dist1" d={PathDist1} fill={fillDist1} />
+        {/* Bleed can occur along edges due to anti-aliasing */}
         <clipPath id="distClip">
           <use href="#dist2" />
         </clipPath>

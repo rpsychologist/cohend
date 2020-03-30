@@ -143,7 +143,6 @@ const OverlapChart = props => {
           clipPath="url(#distClip)"
           id="distOverlap"
           fill={fillDistOverlap}
-          stroke={fillDistOverlap}
         />
         <VerticalLine
           x={xScale(M0)}

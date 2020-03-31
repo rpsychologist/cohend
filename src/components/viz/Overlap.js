@@ -112,6 +112,11 @@ const OverlapChart = props => {
 
   const PathDist1 = useMemo(() => linex(data1.data), [SD, M0, w, reset]);
   const labMargin = cohend > 0.1 ? 5 : 15;
+  const xScaleM0 = xScale(M0);
+  const xScaleM1 = xScale(M1);
+  const xScaleDiff = xScaleM1 - xScaleM0;
+  const xScaleCenter = (xScaleM1 + xScaleM0) / 2;
+  const yScaleZero = yScale(0);
 
   return (
     <svg
@@ -126,17 +131,44 @@ const OverlapChart = props => {
           x => `translate(${margin.left + x}, ${margin.top})`
         )}
       >
-        <path id="dist1" d={PathDist1} fill={fillDist1} />
-        {/* Bleed can occur along edges due to anti-aliasing */}
+        <path
+          id="dist1"
+          d={PathDist1}
+          fill={fillDist1}
+          clipPath="url(#rectClip1)"
+        />
+        {/* 
+        Clip dist1 och dist2 to avoid bleed around overlap path (caused by antialiasing)
+        */}
+        <clipPath id="rectClip1">
+          <rect
+            x={0}
+            y={0}
+            height={h}
+            width={cohend == 0 ? 0 : xScaleCenter}
+            fill="yellow"
+            opacity={0.5}
+          />
+          <clipPath id="rectClip2">
+            <rect
+              x={xScaleCenter}
+              y={0}
+              height={h}
+              width={cohend == 0 ? 0 : xScale(xMax) - xScaleCenter}
+              fill="yellow"
+              opacity={0.5}
+            />
+          </clipPath>
+        </clipPath>
         <clipPath id="distClip">
           <use href="#dist2" />
         </clipPath>
-        <g>
+        <g clipPath="url(#rectClip2)">
           <path
             d={PathDist1}
             id="dist2"
-            transform={`translate(${xScale(M1) - xScale(M0)},0)`}
             fill={fillDist2}
+            transform={`translate(${xScaleDiff},0)`}
           />
         </g>
         <path
@@ -145,18 +177,8 @@ const OverlapChart = props => {
           id="distOverlap"
           fill={fillDistOverlap}
         />
-        <VerticalLine
-          x={xScale(M0)}
-          y1={yScale(0)}
-          y2={yScale(yMax)}
-          id="mu0"
-        />
-        <VerticalLine
-          x={xScale(M1)}
-          y1={yScale(0)}
-          y2={yScale(yMax)}
-          id="mu1"
-        />
+        <VerticalLine x={xScaleM0} y1={yScaleZero} y2={yScale(yMax)} id="mu0" />
+        <VerticalLine x={xScaleM1} y1={yScaleZero} y2={yScale(yMax)} id="mu1" />
         <g>
           <text
             textAnchor="middle"
@@ -166,8 +188,8 @@ const OverlapChart = props => {
             {xLabel}
           </text>
           <line
-            x1={xScale(M0)}
-            x2={xScale(M1)}
+            x1={xScaleM0}
+            x2={xScaleM1}
             y1={-10}
             y2={-10}
             id="mu_connect"
@@ -175,7 +197,7 @@ const OverlapChart = props => {
             markerEnd="url(#arrowRight)"
           />
           <text
-            x={xScale((M0 + M1) / 2)}
+            x={xScaleCenter}
             y={-50}
             className="MuiTypography-h5 fontWeightBold"
             dominantBaseline="central"
@@ -185,7 +207,7 @@ const OverlapChart = props => {
             {`Cohen's d: ${format(".2n")(cohend)}`}
           </text>
           <text
-            x={xScale((M0 + M1) / 2)}
+            x={xScaleCenter}
             y={-25}
             className="MuiTypography-body1"
             dominantBaseline="central"
@@ -195,7 +217,7 @@ const OverlapChart = props => {
             {`(Diff: ${format(".3n")(M1 - M0)})`}
           </text>
           <text
-            x={xScale(M0) - labMargin}
+            x={xScaleM0 - labMargin}
             y={-10}
             className="MuiTypography-body1"
             dominantBaseline="central"
@@ -205,7 +227,7 @@ const OverlapChart = props => {
             {muZeroLabel}
           </text>
           <text
-            x={xScale(M1) + labMargin}
+            x={xScaleM1 + labMargin}
             y={-10}
             className="MuiTypography-body1"
             dominantBaseline="central"
@@ -223,7 +245,7 @@ const OverlapChart = props => {
         />
       </g>
       <defs>
-        {/* Manually create both markers so they will orient correctly if saveSvg is used. Auto-orient renders incorrectly*/}
+        {/* Manually create both markers so they will orient correctly if saveSvg is used. Auto-orient renders incorrectly in some programs*/}
         <marker
           id="arrowLeft"
           viewBox="0 -5 10 10"

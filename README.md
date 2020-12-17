@@ -1,4 +1,7 @@
 
+# DEPRECATED
+This repo has been merged with https://github.com/rpsychologist/rpsychologist-com
+
 # Interpreting Cohen's d Effect Size: An Interactive Visualization 
 
 This is the source code for ["Interpreting Cohen's d Effect Size: An Interactive Visualization"](https://rpsychologist.com/d3/cohend/).
